@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.aixuexi.mapper.AxxServicelineMapper">
+    
+    <resultMap type="AxxServiceline" id="AxxServicelineResult">
+        <result property="servicelineId"    column="serviceline_id"    />
+        <result property="departmentId"    column="department_id"    />
+        <result property="servicelineName"    column="serviceline_name"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectAxxServicelineVo">
+        select serviceline_id, department_id, serviceline_name, remark from axx_serviceline
+    </sql>
+
+    <select id="selectAxxServicelineList" parameterType="AxxServiceline" resultMap="AxxServicelineResult">
+        <include refid="selectAxxServicelineVo"/>
+        <where>  
+            <if test="departmentId != null "> and department_id = #{departmentId}</if>
+            <if test="servicelineName != null  and servicelineName != ''"> and serviceline_name like concat('%', #{servicelineName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectAxxServicelineById" parameterType="Long" resultMap="AxxServicelineResult">
+        <include refid="selectAxxServicelineVo"/>
+        where serviceline_id = #{servicelineId}
+    </select>
+        
+    <insert id="insertAxxServiceline" parameterType="AxxServiceline" useGeneratedKeys="true" keyProperty="servicelineId">
+        insert into axx_serviceline
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="departmentId != null">department_id,</if>
+            <if test="servicelineName != null">serviceline_name,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="departmentId != null">#{departmentId},</if>
+            <if test="servicelineName != null">#{servicelineName},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAxxServiceline" parameterType="AxxServiceline">
+        update axx_serviceline
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="departmentId != null">department_id = #{departmentId},</if>
+            <if test="servicelineName != null">serviceline_name = #{servicelineName},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where serviceline_id = #{servicelineId}
+    </update>
+
+    <delete id="deleteAxxServicelineById" parameterType="Long">
+        delete from axx_serviceline where serviceline_id = #{servicelineId}
+    </delete>
+
+    <delete id="deleteAxxServicelineByIds" parameterType="String">
+        delete from axx_serviceline where serviceline_id in 
+        <foreach item="servicelineId" collection="array" open="(" separator="," close=")">
+            #{servicelineId}
+        </foreach>
+    </delete>
+</mapper>

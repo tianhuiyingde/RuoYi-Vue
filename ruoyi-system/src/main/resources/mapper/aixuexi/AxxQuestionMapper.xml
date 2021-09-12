@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.aixuexi.mapper.AxxQuestionMapper">
+    
+    <resultMap type="AxxQuestion" id="AxxQuestionResult">
+        <result property="questionId"    column="question_id"    />
+        <result property="departmentId"    column="department_id"    />
+        <result property="serviceId"    column="service_id"    />
+        <result property="categoryId"    column="category_id"    />
+        <result property="questionDesc"    column="question_desc"    />
+        <result property="questionAnswer"    column="question_answer"    />
+        <result property="questionKey"    column="question_key"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectAxxQuestionVo">
+        select question_id, department_id, service_id, category_id, question_desc, question_answer, question_key, remark from axx_question
+    </sql>
+
+    <select id="selectAxxQuestionList" parameterType="AxxQuestion" resultMap="AxxQuestionResult">
+        <include refid="selectAxxQuestionVo"/>
+        <where>  
+            <if test="departmentId != null "> and department_id = #{departmentId}</if>
+            <if test="serviceId != null "> and service_id = #{serviceId}</if>
+            <if test="categoryId != null "> and category_id = #{categoryId}</if>
+            <if test="questionDesc != null  and questionDesc != ''"> and question_desc = #{questionDesc}</if>
+            <if test="questionAnswer != null  and questionAnswer != ''"> and question_answer = #{questionAnswer}</if>
+            <if test="questionKey != null  and questionKey != ''"> and question_key = #{questionKey}</if>
+        </where>
+    </select>
+    
+    <select id="selectAxxQuestionById" parameterType="Long" resultMap="AxxQuestionResult">
+        <include refid="selectAxxQuestionVo"/>
+        where question_id = #{questionId}
+    </select>
+        
+    <insert id="insertAxxQuestion" parameterType="AxxQuestion" useGeneratedKeys="true" keyProperty="questionId">
+        insert into axx_question
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="departmentId != null">department_id,</if>
+            <if test="serviceId != null">service_id,</if>
+            <if test="categoryId != null">category_id,</if>
+            <if test="questionDesc != null">question_desc,</if>
+            <if test="questionAnswer != null">question_answer,</if>
+            <if test="questionKey != null">question_key,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="departmentId != null">#{departmentId},</if>
+            <if test="serviceId != null">#{serviceId},</if>
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="questionDesc != null">#{questionDesc},</if>
+            <if test="questionAnswer != null">#{questionAnswer},</if>
+            <if test="questionKey != null">#{questionKey},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAxxQuestion" parameterType="AxxQuestion">
+        update axx_question
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="departmentId != null">department_id = #{departmentId},</if>
+            <if test="serviceId != null">service_id = #{serviceId},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="questionDesc != null">question_desc = #{questionDesc},</if>
+            <if test="questionAnswer != null">question_answer = #{questionAnswer},</if>
+            <if test="questionKey != null">question_key = #{questionKey},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where question_id = #{questionId}
+    </update>
+
+    <delete id="deleteAxxQuestionById" parameterType="Long">
+        delete from axx_question where question_id = #{questionId}
+    </delete>
+
+    <delete id="deleteAxxQuestionByIds" parameterType="String">
+        delete from axx_question where question_id in 
+        <foreach item="questionId" collection="array" open="(" separator="," close=")">
+            #{questionId}
+        </foreach>
+    </delete>
+</mapper>

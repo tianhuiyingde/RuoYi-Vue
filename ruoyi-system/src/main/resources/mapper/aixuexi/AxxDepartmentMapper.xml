@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.aixuexi.mapper.AxxDepartmentMapper">
+    
+    <resultMap type="AxxDepartment" id="AxxDepartmentResult">
+        <result property="departmentId"    column="department_id"    />
+        <result property="departmentName"    column="department_name"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <resultMap id="AxxDepartmentAxxServicelineResult" type="AxxDepartment" extends="AxxDepartmentResult">
+        <collection property="axxServicelineList" notNullColumn="sub_serviceline_id" javaType="java.util.List" resultMap="AxxServicelineResult" />
+    </resultMap>
+
+    <resultMap type="AxxServiceline" id="AxxServicelineResult">
+        <result property="servicelineId"    column="sub_serviceline_id"    />
+        <result property="departmentId"    column="sub_department_id"    />
+        <result property="servicelineName"    column="sub_serviceline_name"    />
+        <result property="remark"    column="sub_remark"    />
+    </resultMap>
+
+    <sql id="selectAxxDepartmentVo">
+        select department_id, department_name, remark from axx_department
+    </sql>
+
+    <select id="selectAxxDepartmentList" parameterType="AxxDepartment" resultMap="AxxDepartmentResult">
+        <include refid="selectAxxDepartmentVo"/>
+        <where>  
+            <if test="departmentName != null  and departmentName != ''"> and department_name like concat('%', #{departmentName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectAxxDepartmentById" parameterType="Long" resultMap="AxxDepartmentAxxServicelineResult">
+        select a.department_id, a.department_name, a.remark,
+            b.serviceline_id as sub_serviceline_id, b.department_id as sub_department_id, b.serviceline_name as sub_serviceline_name, b.remark as sub_remark
+        from axx_department a
+        left join axx_serviceline b on b.department_id = a.department_id
+        where a.department_id = #{departmentId}
+    </select>
+        
+    <insert id="insertAxxDepartment" parameterType="AxxDepartment" useGeneratedKeys="true" keyProperty="departmentId">
+        insert into axx_department
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="departmentName != null">department_name,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="departmentName != null">#{departmentName},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAxxDepartment" parameterType="AxxDepartment">
+        update axx_department
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="departmentName != null">department_name = #{departmentName},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where department_id = #{departmentId}
+    </update>
+
+    <delete id="deleteAxxDepartmentById" parameterType="Long">
+        delete from axx_department where department_id = #{departmentId}
+    </delete>
+
+    <delete id="deleteAxxDepartmentByIds" parameterType="String">
+        delete from axx_department where department_id in 
+        <foreach item="departmentId" collection="array" open="(" separator="," close=")">
+            #{departmentId}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteAxxServicelineByDepartmentIds" parameterType="String">
+        delete from axx_serviceline where department_id in 
+        <foreach item="departmentId" collection="array" open="(" separator="," close=")">
+            #{departmentId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteAxxServicelineByDepartmentId" parameterType="Long">
+        delete from axx_serviceline where department_id = #{departmentId}
+    </delete>
+
+    <insert id="batchAxxServiceline">
+        insert into axx_serviceline( serviceline_id, department_id, serviceline_name, remark) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.servicelineId}, #{item.departmentId}, #{item.servicelineName}, #{item.remark})
+        </foreach>
+    </insert>
+</mapper>
